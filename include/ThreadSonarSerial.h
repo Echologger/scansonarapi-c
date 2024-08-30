@@ -17,8 +17,6 @@ enum class ThreadSSState { TSSState_Init, TSSState_Connecting, TSSState_Connecte
                            TSSState_Working, TSSState_SetSettings, TSSState_Disconnected
                          };
 
-void SonarSerialThreadFunc(void* arg);
-
 class ThreadSonarSerial final
 {
 public:
