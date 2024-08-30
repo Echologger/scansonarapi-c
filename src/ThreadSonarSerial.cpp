@@ -10,7 +10,6 @@
 #include "SonarStructures.h"
 #include "Crc32.h"
 #include "B64Encode.h"
-#include "AppLists.h"
 
 namespace
 {
