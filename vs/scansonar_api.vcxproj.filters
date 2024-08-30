@@ -24,9 +24,6 @@
     <ClCompile Include="..\src\ThreadSonarSerial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\scansonar_api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\modules\serial\src\impl\win.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

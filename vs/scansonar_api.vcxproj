@@ -26,7 +26,6 @@
     <ClCompile Include="..\src\ISonar.cpp" />
     <ClCompile Include="..\src\Scansonar.cpp" />
     <ClCompile Include="..\src\ScansonarCWrapper.cpp" />
-    <ClCompile Include="..\src\scansonar_api.cpp" />
     <ClCompile Include="..\src\SonarData.cpp" />
     <ClCompile Include="..\src\ThreadSonarSerial.cpp" />
   </ItemGroup>
