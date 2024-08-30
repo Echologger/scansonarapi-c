@@ -105,6 +105,7 @@ static void SonarSerialThreadFunc(void* arg)
     }
 }
 
+#if !defined (__linux__)
 ThreadSonarSerial::ThreadSonarSerial(std::shared_ptr<serial::Serial> SerialPort, std::wstring filename, std::function<void(char*, int)> cbfunc) :
     cb_dataready(cbfunc),
     serialport(SerialPort),
@@ -125,6 +126,7 @@ ThreadSonarSerial::ThreadSonarSerial(std::shared_ptr<serial::Serial> SerialPort,
     state = ThreadSSState::TSSState_Init;
     thread = std::make_unique<std::thread>(SonarSerialThreadFunc, this);
 }
+#endif
 
 ThreadSonarSerial::ThreadSonarSerial(std::shared_ptr<serial::Serial> SerialPort, std::string filename, std::function<void(char*, int)> cbfunc) :
     cb_dataready(cbfunc),
