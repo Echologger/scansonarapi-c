@@ -40,6 +40,7 @@ enum ScansonarCommandIds
 
     IdSectorHeading,
     IdSectorWidth,
+    IdRotationParam,
     IdSteppingMode,
     IdSteppingTime,
     IdSteppingAngle

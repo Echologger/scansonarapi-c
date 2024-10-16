@@ -32,6 +32,7 @@ void Scansonar::SetDefaultSettings()
     scansonar_settings_[IdCommandID]        = "1024";
 
     scansonar_settings_[IdSectorHeading]    = "0";
+    scansonar_settings_[IdRotationParam]    = "0";
     scansonar_settings_[IdSectorWidth]      = "0";
     scansonar_settings_[IdSteppingMode]     = "1";
 
@@ -159,6 +160,17 @@ int Scansonar::SendSettings()
     if (false == swv.empty())
     {
         dssp.sector_width = std::stoi(swv);
+    }
+    else
+    {
+        return -1;
+    }
+
+    const auto& rpv = scansonar_settings_[IdRotationParam];
+
+    if (false == rpv.empty())
+    {
+        dssp.rotation_parameters = std::stoi(rpv);
     }
     else
     {
@@ -386,7 +398,7 @@ bool Scansonar::SetValue(ScansonarCommandIds Command, const std::string& SonarVa
         case IdSectorHeading:
         {
             int minvalue = 0;
-            int maxvalue = 2800;
+            int maxvalue = 28800;
 
             retvalue = (ivalue < minvalue) ? false : (ivalue > maxvalue) ? false : true;
 
@@ -399,14 +411,28 @@ bool Scansonar::SetValue(ScansonarCommandIds Command, const std::string& SonarVa
         }
         case IdSectorWidth:
         {
-            int minvalue = 400;
-            int maxvalue = 1600;
+            int minvalue = 0;
+            int maxvalue = 28800;
 
             retvalue = (ivalue < minvalue) ? false : (ivalue > maxvalue) ? false : true;
 
             if (true == retvalue)
             {
                 scansonar_settings_[IdSectorWidth] = SonarValue;
+            }
+
+            break;
+        }
+        case IdRotationParam:
+        {
+            int minvalue = 0;
+            int maxvalue = 1;
+
+            retvalue = (ivalue < minvalue) ? false : (ivalue > maxvalue) ? false : true;
+
+            if (true == retvalue)
+            {
+                scansonar_settings_[IdRotationParam] = SonarValue;
             }
 
             break;

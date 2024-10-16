@@ -136,6 +136,10 @@ public:
     */
     std::shared_ptr<serial::Serial>& GetSerialPort();
 
+    /**
+    *   @brief Get pointer to Raw Scanning Sonar data
+    *   @return pointer to data
+    */
     uint16_t* GetRawSonarData() const;
 
     virtual void GetSettings() override;
