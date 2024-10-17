@@ -233,6 +233,17 @@ DLL_EXPORT bool ScansonarIsDetected(pSnrCtx snrctx);
  */
 DLL_EXPORT bool ScansonarDetect(pSnrCtx snrctx);
 
+/**
+ * @brief   Return pointer for RAW echosounder data buffer
+ *
+ * @note    Not affect anything
+ *
+ * @param[in]  snrctx       Connection handle obtained by (Single|Dual)EchosounderOpen function.
+ *
+ * @return                  Pointer to RAW data buffer
+ */
+DLL_EXPORT uint16_t* GetRawSonarData(pSnrCtx snrctx);
+
 #ifdef __cplusplus
 }
 #endif

@@ -38,7 +38,6 @@ namespace
     // *INDENT-ON*
 }
 
-//wxThread::ExitCode ThreadSonarSerial::Entry()
 static void SonarSerialThreadFunc(void* arg)
 {
     bool isfailed = false;
@@ -70,7 +69,6 @@ static void SonarSerialThreadFunc(void* arg)
                     break;
 
                 case ThreadSSState::TSSState_Working:
-                    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
                     tss->state = tss->ThreadWorking();
                     break;
 
@@ -113,8 +111,6 @@ ThreadSonarSerial::ThreadSonarSerial(std::shared_ptr<serial::Serial> SerialPort,
     params_updated(true),
     sonarfailed_(false)
 {
-    //dcsp = { 1, 0, 1000, 0, 0, 2, 50, 50000, 368, 100000, 0.0F, 0.0F, 0, 80, 0, 0, 0.0F, 0.0F };
-    //dssp = { 0, 0, 0, 1, 35138, 0 };
     dcsp = { 0, };
     dssp = { 0, };
 
@@ -135,8 +131,6 @@ ThreadSonarSerial::ThreadSonarSerial(std::shared_ptr<serial::Serial> SerialPort,
     params_updated(true),
     sonarfailed_(false)
 {
-    //dcsp = { 1, 0, 1000, 0, 0, 2, 50, 50000, 368, 100000, 0.0F, 0.0F, 0, 80, 0, 0, 0.0F, 0.0F };
-    //dssp = { 0, 0, 0, 1, 35138, 0 };
     dcsp = { 0, };
     dssp = { 0, };
 
@@ -161,16 +155,12 @@ ThreadSSState ThreadSonarSerial::GetThreadState() const
 
 ThreadSSState ThreadSonarSerial::ThreadInit()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::ThreadInit: Start"));
-
     // DO some preinit
     return ThreadSSState::TSSState_Connecting;
 }
 
 ThreadSSState ThreadSonarSerial::ThreadConnecting()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::ThreadConnecting: Start"));
-
     ThreadSSState retvalue = ThreadSSState::TSSState_Disconnected;
 
     int result = 0;
@@ -181,7 +171,6 @@ ThreadSSState ThreadSonarSerial::ThreadConnecting()
 
         if (result < 0)
         {
-            //this->Sleep(3000);
             std::this_thread::sleep_for(std::chrono::milliseconds(3000));
             continue;
         }
@@ -201,15 +190,12 @@ ThreadSSState ThreadSonarSerial::ThreadConnecting()
 
 ThreadSSState ThreadSonarSerial::ThreadConnected()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::ThreadConnected: Start"));
-
     ThreadSSState retvalue = ThreadSSState::TSSState_Disconnected;
     int result;
 
     // check command mode
     for(int i = 0; i < 10; i++)
     {
-        //this->Sleep(100);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         result = MRS900_IsCommandMode();
 
@@ -221,7 +207,6 @@ ThreadSSState ThreadSonarSerial::ThreadConnected()
 
     if (result < 0)
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::ThreadConnected: Go to Command mode failed"));
         return ThreadSSState::TSSState_Disconnected;
     }
 
@@ -231,19 +216,12 @@ ThreadSSState ThreadSonarSerial::ThreadConnected()
 //////////////////////////////////////////////
 ThreadSSState ThreadSonarSerial::ThreadWorking()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::ThreadWorking: Start"));
-
     ThreadSSState retvalue = ThreadSSState::TSSState_Disconnected;
     int result = 0;
 
     auto linebuffer = std::make_unique<uint8_t[]>(sonarData->GetSamplesPerLine());
 
     int gAngle = 0;
-    //float gGyroAngle;
-
-    //int gTraceCompass = 0;
-    //int gTraceGyro = 0;
-    //int gTraceHead = 0;
 
     static int prev_angle = -1;
     static int curr_angle = -1;
@@ -251,14 +229,9 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
     int in_angle = 0;
     bool bResult = true;
 
-    //keep_alive_counter = std::chrono::steady_clock::now();
-
-    //for (;;)
     {
         if ((result = MRS900_GetLine(&linebuffer[0])) < 0)        
         {
-            //std::cout << "GetLine() result => " << result << "\n";
-
             if (-5 == result)
             {
                 return ThreadSSState::TSSState_Disconnected;
@@ -266,15 +239,7 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
 
             // Continue until timeout
             return ThreadSSState::TSSState_Working;
-            //if (result == -7)
-            //{
-            //    return ThreadSSState::TSSState_Working;
-            //}
-
-            //return ThreadSSState::TSSState_Disconnected;
         }
-
-        //std::cout << "GetLine() result => " << result << "\n";
 
         PDATAHEADER pdh = reinterpret_cast<PDATAHEADER>(&linebuffer[0]);
         PDATAFOOTER pdf = reinterpret_cast<PDATAFOOTER>(&linebuffer[pdh->samples - sizeof(DATAFOOTER)]);
@@ -300,19 +265,10 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
 
         COMMANDID cid = *recvid;
 
-        //uint32_t icid = *((uint32_t*)&cid);
-        //std::string tracebuf = "cid before = " + std::to_string(icid);
-        //wxLogDebug(wxString(tracebuf));
-
         in_angle = pdh->angle / 9;
         in_angle = (0 == in_angle) ? 0 : (1 == cid.headup) ? sonarData->GetLinesPerFullTurn() - in_angle : in_angle;
         in_angle = std::abs(in_angle);
         in_angle %= sonarData->GetLinesPerFullTurn();
-
-
-        //pappdata->recvcid = *reinterpret_cast<PCOMMANDID>(&pdh->commandid);
-        //pappdata->filerange = GetRangeFromHeader(pdh);
-        //pappdata->deviceId = pdh->deviceid;
 
         // Conver Dataheader to v3
         {
@@ -382,48 +338,24 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
             ThreadSSState::TSSState_Disconnected;
         }
 
-        //if (0 != pappdata->viewdialogsettings.stopview)
-        //{
-        //    return ThreadSSState::TSSState_Working;
-        //}
-
         uint16_t *sonardata = sonarData->GetRawSonarData();
 
         std::memset(&sonardata[sonarData->GetSamplesPerLine() * in_angle], 0, sonarData->GetSamplesPerLine() * sizeof(uint16_t));
 
         for (int i = 0; i < pdh->samples - pdh->dataoffset - sizeof(DATAFOOTER); i++)
         {
-            auto dz = 0;// *std::next(applists::guideadzone.begin(), pappdata->viewdialogsettings.deadzoneidx);
-
-            if ((i + sizeof(DATAHEADER)) <= (static_cast<int>(dz * 100.0) + sizeof(DATAHEADER)))
-            {
-                continue;
-            }
-
-            uint16_t sample = linebuffer[i + pdh->dataoffset];
-            sample = uncompand8to12b[sample];
-
-            double gain = 0.0;// *std::next(applists::guigain.begin(), pappdata->viewdialogsettings.gainidx);
-            double dsample = gain * static_cast<double>(sample);
-
-            sample = static_cast<uint16_t>(dsample);
-            sample = (sample > 4095) ? 4095 : sample;
+            uint8_t sample8 = linebuffer[i + pdh->dataoffset];
+            uint16_t sample = uncompand8to12b[sample8];
 
             sonardata[(sonarData->GetSamplesPerLine() * in_angle) + i] = sample;
         }
 
-        //std::cout << "prev_angle => " << prev_angle << " in_angle=> " << in_angle << "\n";
         /// Fill memory between 2 consecutive received data lines
-        ///
 
         curr_angle = (in_angle == 0 && prev_angle > 1599) ? 3199 : in_angle;
         prev_angle = (in_angle > 1599 && prev_angle == 0) ? 3199 : prev_angle;
 
-#ifdef SECTOR32TEST
-        if ((prev_angle != -1) && (labs(prev_angle - (int)curr_angle) < 200))
-#else
         if ((prev_angle != -1) && (std::abs(prev_angle - curr_angle) < 20))
-#endif
         {
             int sign = ((prev_angle - curr_angle) > 0) ? 1 : -1;
 
@@ -459,11 +391,6 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
 
         prev_angle = in_angle;
         gAngle = in_angle;
-
-//#if 1
-//        gGyroAngle = 0;
-//#else
-//#endif
     }
 
     if (true == params_updated)
@@ -489,39 +416,29 @@ ThreadSSState ThreadSonarSerial::ThreadWorking()
 
 ThreadSSState ThreadSonarSerial::ThreadSetSettings()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::ThreadSetSettings: Start"));
-
     int result;
 
     if (true == GetSonarParams())
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::ThreadSetSettings: true == GetSonarParams()"));
-
-        //DATAGCOMMONSONARPARAM dcsp = { 0, }; //pappdata->dcsp;
-        //DATAGSCANSONARPARAM dssp = { 0, }; //pappdata->dssp;
-
         DATAGCOMMONSONARPARAM dcsp_local = dcsp.load();
         DATAGSCANSONARPARAM dssp_local = dssp.load();
 
         result = MRS900_SetParams(&dcsp_local, &dssp_local);
 
-        //this->Sleep(10);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         if (result < 0)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::ThreadSetSettings: MRS900_SetParams failed"));
             return ThreadSSState::TSSState_Disconnected;
         }
     }
 
     result = MRS900_Command2Work();
-    //this->Sleep(10);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     if (result < 0)
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::ThreadSetSettings: MRS900_Command2Work failed\n"));
+        //Command2Work failed
         return ThreadSSState::TSSState_Disconnected;
     }
 
@@ -551,13 +468,11 @@ int ThreadSonarSerial::MRS900_Responsecheck()
 
             if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), oktoken))
             {
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: Response: #OK"));
                 result = 0;
                 break;
             }
             else if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), ertoken))
             {
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: Response: #ER"));
                 result = 1;
                 break;
             }
@@ -567,7 +482,6 @@ int ThreadSonarSerial::MRS900_Responsecheck()
 
         if (period.count() > 2000LL)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: timeout"));
             result = -2;
             break;
         }
@@ -602,13 +516,11 @@ int ThreadSonarSerial::MRS900_Responsecheck(char *responsedata)
 
             if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), oktoken))
             {
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: Response: #OK"));
                 result = 0;
                 break;
             }
             else if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), ertoken))
             {
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: Response: #ER"));
                 result = 1;
                 break;
             }
@@ -639,7 +551,6 @@ int ThreadSonarSerial::MRS900_Responsecheck(char *responsedata)
 
         if (period.count() > 2000LL)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Responsecheck: timeout"));
             result = -2;
             break;
         }
@@ -676,7 +587,6 @@ bool ThreadSonarSerial::GetSonarParams()
 
 int ThreadSonarSerial::MRS900_Synccheck()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Synccheck: Start"));
     int result = 0;
 
     uint8_t magicidbuffer[6] = { '0', '0', '0', '0', '0', '0' };
@@ -705,7 +615,6 @@ int ThreadSonarSerial::MRS900_Synccheck()
 
         if (period.count() > 2000LL)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Synccheck: timeout"));
             result = -2;
             break;
         }
@@ -744,7 +653,6 @@ int ThreadSonarSerial::MRS900_Workmodecheck()
 
         if (period.count() > 5000LL)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Workmodecheck: timeout"));
             result = -2;
             break;
         }
@@ -765,7 +673,6 @@ int ThreadSonarSerial::MRS900_Command2Work()
 
     if (result < 0)
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Command2Work: BIN_COMMAND_START failed"));
         return result;
     }
 
@@ -787,12 +694,10 @@ int ThreadSonarSerial::MRS900_Work2Command()
         if (1 == result)
         {
             MRS900_SendCommand(BIN_COMMAND_STOP, nullptr);
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Work2Command: Workmodecheck END1"));
             // not put continue; here -> check timeout later
         }
         else if (2 == result)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Work2Command: Workmodecheck CMND"));
             result = 0;
             break;
         }
@@ -801,7 +706,6 @@ int ThreadSonarSerial::MRS900_Work2Command()
 
         if (period.count() > 2000L)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Work2Command: Timeout"));
             result = -6;
             break;
         }
@@ -826,17 +730,12 @@ int ThreadSonarSerial::MRS900_Commandmodecheck(int timeout)
 
         if (br > 0)
         {
-            //wxString str;
-            //str += ch;
-            //wxLogDebug(str);
-
             std::rotate(magicidbuffer, magicidbuffer + 1, magicidbuffer + sizeof(magicidbuffer));
             magicidbuffer[sizeof(magicidbuffer) - 1] = ch;
 
             if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), cmndtoken))
             {
                 result = 0;
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Commandmodecheck: success"));
                 break;
             }
         }
@@ -845,7 +744,6 @@ int ThreadSonarSerial::MRS900_Commandmodecheck(int timeout)
 
         if (period.count() > timeout)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Commandmodecheck: timeout"));
             result = -2;
             break;
         }
@@ -916,7 +814,6 @@ int ThreadSonarSerial::MRS900_GetEndOrCmnd()
 
         if (period.count() > 4000LL)
         {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetEndOrCmnd: timeout"));
             result = -2;
             break;
         }
@@ -927,8 +824,6 @@ int ThreadSonarSerial::MRS900_GetEndOrCmnd()
 
 int ThreadSonarSerial::MRS900_Autobaud()
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::MRS900_Autobaud: Start"));
-
     int result = -1;
     std::size_t byteswritten;
 
@@ -957,8 +852,6 @@ int ThreadSonarSerial::MRS900_Autobaud()
         return result;
     }
 
-    //serialport->setBaudrate(baudrate);
-
     result = MRS900_Commandmodecheck(10000);
 
     if (0 != result)
@@ -971,8 +864,6 @@ int ThreadSonarSerial::MRS900_Autobaud()
 
 int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
 {
-    //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine: Start"));
-
     int retvalue = 0;
 
     uint8_t magicidbuffer[4] = { '0', '0', '0', '0' };
@@ -990,9 +881,6 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
 
     if (STATE_GETHEADER == state)
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine: STATE_GETHEADER"));
-        //int repeattimes = 0;
-
         for (;;)
         {
             uint8_t ch;
@@ -1029,7 +917,6 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
 
             if (period.count() > 1000LL)
             {
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine Error: DATA timeout"));
                 retvalue = -6;
                 break;
             }
@@ -1040,9 +927,6 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
 
     if ((STATE_GETFOOTER == state) && (0 == retvalue))
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine: STATE_GETFOOTER"));
-        //int repeattimes = 0;
-
         for (;;)
         {
             uint8_t ch;
@@ -1063,8 +947,7 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
                 }
                 else if (std::equal(magicidbuffer, magicidbuffer + sizeof(magicidbuffer), datatoken))
                 {
-                    //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine Error: DATA detected when ENDx expected"));
-                    std::cout << "ThreadSonarSerial::MRS900_GetLine Error: DATA detected when ENDx expected" << "\n";
+                    //std::cout << "ThreadSonarSerial::MRS900_GetLine Error: DATA detected when ENDx expected" << "\n";
 
                     bytesread = 4;
                     continue;
@@ -1086,8 +969,6 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
             {
                 std::string tracebuf = "period.count() > 1000LL bytesread = " + std::to_string(bytesread);
                 std::cout << tracebuf << "\n";
-                //wxLogDebug(wxString(tracebuf));
-                //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine Error: ENDx timeout"));
                 retvalue = -6;
                 break;
             }
@@ -1102,15 +983,11 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
 
         PDATAHEADER pdh = reinterpret_cast<PDATAHEADER>(&linebuf[0]);
 
-        //std::string tracebuf = "pdh->samples > bytesread: pdh->samples= " + std::to_string(pdh->samples) + " bytesread= " + std::to_string(bytesread);
-        //std::cout << tracebuf << "\n";
-
         if (pdh->samples > static_cast<uint32_t>(bytesread))
         {
-            std::string tracebuf = "pdh->samples > bytesread: pdh->samples= " + std::to_string(pdh->samples) + " bytesread= " + std::to_string(bytesread);
-            std::cout << tracebuf << "\n";
-            //wxLogDebug(wxString(tracebuf));
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine Error: Wrong number of samples"));
+            //std::string tracebuf = "pdh->samples > bytesread: pdh->samples= " + std::to_string(pdh->samples) + " bytesread= " + std::to_string(bytesread);
+            //std::cout << tracebuf << "\n";
+            // Wrong number of samples
             retvalue = -7;
         }
     }
@@ -1118,8 +995,6 @@ int ThreadSonarSerial::MRS900_GetLine(uint8_t *linebuf)
     {
         retvalue = -1;
     }
-
-    //wxLogDebug(wxT("ThreadSonarSerial::MRS900_GetLine: Finish"));
 
     return retvalue;
 }
@@ -1130,15 +1005,9 @@ int ThreadSonarSerial::MRS900_GetFWVersion(char *version)
 
     MRS900_SendCommand(BIN_COMMAND_FWVERSION, nullptr);
 
-    //this->Sleep(10);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     result = MRS900_Responsecheck(version);
-
-    if (result < 0)
-    {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_SendCommand: BIN_COMMAND_FWVERSION failed"));
-    }
 
     return result;
 }
@@ -1149,15 +1018,9 @@ int ThreadSonarSerial::MRS900_GetDeviceType(char *type)
 
     MRS900_SendCommand(BIN_COMMAND_DEVICETYPE, nullptr);
 
-    //this->Sleep(10);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     result = MRS900_Responsecheck(type);
-
-    if (result < 0)
-    {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_SendCommand: BIN_COMMAND_DEVICETYPE failed"));
-    }
 
     return result;
 }
@@ -1168,15 +1031,9 @@ int ThreadSonarSerial::MRS900_Reset()
 
     MRS900_SendCommand(BIN_COMMAND_RESET, nullptr);
 
-    //this->Sleep(10);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     result = MRS900_Responsecheck();
-
-    if (result < 0)
-    {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_SendCommand: BIN_COMMAND_RESET failed"));
-    }
 
     return result;
 }
@@ -1200,7 +1057,7 @@ int ThreadSonarSerial::MRS900_SetParams(const PDATAGCOMMONSONARPARAM pdcsp, cons
 
     if (result < 0)
     {
-        //wxLogDebug(wxT("ThreadSonarSerial::MRS900_SetParams: BIN_COMMAND_COMMONSETTINGS failed"));
+        // BIN_COMMAND_COMMONSETTINGS failed
     }
     else
     {
@@ -1209,11 +1066,6 @@ int ThreadSonarSerial::MRS900_SetParams(const PDATAGCOMMONSONARPARAM pdcsp, cons
 
         result = MRS900_Responsecheck();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        if (result < 0)
-        {
-            //wxLogDebug(wxT("ThreadSonarSerial::MRS900_SetParams: BIN_COMMAND_SCANSETTINGS failed"));
-        }
     }
 
     return result;
@@ -1243,7 +1095,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(DATAGCOMMONSONARPARAM);
             devcommand.checksum = Crc32_ComputeBuf(crc, devcommand.data, sizeof(DATAGCOMMONSONARPARAM));
 
-            //wxLogDebug(wxT("MRS900_SendCommand : Command: BIN_COMMAND_COMMONSETTINGS"));
             break;
         }
 
@@ -1259,7 +1110,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(DATAGSCANSONARPARAM);
             devcommand.checksum = Crc32_ComputeBuf(crc, devcommand.data, sizeof(DATAGSCANSONARPARAM));
 
-            //wxLogDebug(wxT("MRS900_SendCommand : Command: BIN_COMMAND_SCANSETTINGS"));
             break;
         }
 
@@ -1280,7 +1130,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(data);
             devcommand.checksum = Crc32_ComputeBuf(crc, &data, sizeof(data));
 
-            //wxLogDebug(wxT("MRS900_SendCommand : Command: BIN_COMMAND_START"));
             break;
         }
 
@@ -1296,7 +1145,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(data);
             devcommand.checksum = Crc32_ComputeBuf(crc, &data, sizeof(data));
 
-            //wxLogDebug(wxT("MRS900_SendCommand : Command: BIN_COMMAND_STOP"));
             break;
         }
 
@@ -1312,7 +1160,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(data);
             devcommand.checksum = Crc32_ComputeBuf(crc, &data, sizeof(data));
 
-            //wxLogDebug(wxT("MRS900_SendCommand : Command: BIN_COMMAND_RESET"));
             break;
         }
 
@@ -1328,7 +1175,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(data);
             devcommand.checksum = Crc32_ComputeBuf(crc, &data, sizeof(data));
 
-            //wxLogDebug(wxT("Command: BIN_COMMAND_FWVERSION"));
             break;
         }
 
@@ -1344,7 +1190,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(data);
             devcommand.checksum = Crc32_ComputeBuf(crc, &data, sizeof(data));
 
-            //wxLogDebug(wxT("Command: BIN_COMMAND_DEVICETYPE"));
             break;
         }
 
@@ -1360,7 +1205,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
             devcommand.size = sizeof(EEPROMDIRECT);
             devcommand.checksum = Crc32_ComputeBuf(crc, devcommand.data, sizeof(EEPROMDIRECT));
 
-            //wxLogDebug(wxT("Command: BIN_COMMAND_EEPROMDIRECT"));
             break;
         }
 
@@ -1376,8 +1220,6 @@ int ThreadSonarSerial::MRS900_SendCommand(int command, void *param) const
         const std::string &b64cmd = encodeddata->GetEncodedData();
         std::size_t bw = serialport->write(b64cmd);
         serialport->flush();
-
-        //wxLogDebug(wxString(b64cmd));
     }
 
     return retvalue;

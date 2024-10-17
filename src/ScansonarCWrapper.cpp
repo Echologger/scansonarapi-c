@@ -159,3 +159,9 @@ bool ScansonarIsDetected(pSnrCtx snrctx)
     auto ss = reinterpret_cast<Scansonar*>(snrctx);
     return ss->IsDetected();
 }
+
+uint16_t* GetRawSonarData(pSnrCtx snrctx)
+{
+    auto ss = reinterpret_cast<Scansonar*>(snrctx);
+    return ss->GetRawSonarData();
+}

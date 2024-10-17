@@ -8,7 +8,6 @@
 
 static int GetPingInterval(int samples, int steps, int comspeed)
 {
-    //hack for 5meters: samples = ( 704 == samples ) ? 848 : samples;
     int t_acqusition = (samples - sizeof(DATAHEADER) - sizeof(DATAFOOTER)) * 11; // aquisition time us // increase on 10% (was ...TER))* 10 )
     int t_step = steps * 1200; // stepping time us
     float comm_mult = (float)((float)samples / ((float)comspeed / 10.0f));
@@ -35,8 +34,6 @@ void Scansonar::SetDefaultSettings()
     scansonar_settings_[IdRotationParam]    = "0";
     scansonar_settings_[IdSectorWidth]      = "0";
     scansonar_settings_[IdSteppingMode]     = "1";
-
-    //scansonar_settings_[IdSteppingTime]     = "1000"; // == IdInterval !!!
 }
 
 int Scansonar::SendSettings()
@@ -235,9 +232,14 @@ bool Scansonar::SetValue(ScansonarCommandIds Command, const std::string& SonarVa
 
     switch (Command)
     {
+        case IdCommandID:
+        {
+            scansonar_settings_[IdCommandID] = SonarValue;
+            retvalue = true;
+            break;
+        }
         case IdSamples:
         {
-            //const auto samples = { 240,  368,  448,  704,  848, 1040,  1376,  2048,  2704,  4048,  6048,  8000,  13340 };//, 16000, 20000};
             int minvalue = 240;
             int maxvalue = 13340;
 
@@ -340,7 +342,6 @@ bool Scansonar::SetValue(ScansonarCommandIds Command, const std::string& SonarVa
 */
         case IdRange:
         {
-            //TODO: Steps should be calculated here
             int minvalue = 1;
             int maxvalue = 100;
 
@@ -459,7 +460,6 @@ bool Scansonar::SetValue(ScansonarCommandIds Command, const std::string& SonarVa
         }
     }
 
-    std::cout << "Retvalue: " << retvalue << " SonarValue: " << SonarValue << std::endl;
     return retvalue;
 }
 
