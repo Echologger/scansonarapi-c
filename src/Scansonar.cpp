@@ -19,8 +19,8 @@ static int GetPingInterval(int samples, int steps, int comspeed)
 
 void Scansonar::SetDefaultSettings()
 {
-    scansonar_settings_[IdCentralFrequency] = "860000";
-    scansonar_settings_[IdFrequencyBand]    = "80000";
+    scansonar_settings_[IdCentralFrequency] = "0";
+    scansonar_settings_[IdFrequencyBand]    = "0";
     scansonar_settings_[IdToneChirp]        = "0";
     scansonar_settings_[IdTxLength]         = "20";
     scansonar_settings_[IdSamplFreq]        = "100000";
@@ -28,7 +28,7 @@ void Scansonar::SetDefaultSettings()
     scansonar_settings_[IdInterval]         = std::to_string(GetPingInterval(1376, 1, GetSerialPort()->getBaudrate()));
     scansonar_settings_[IdGain]             = "0.0";
     scansonar_settings_[IdTVGTime]          = "80";
-    scansonar_settings_[IdCommandID]        = "1024";
+    scansonar_settings_[IdCommandID]        = "538444416";
 
     scansonar_settings_[IdSectorHeading]    = "0";
     scansonar_settings_[IdRotationParam]    = "0";
