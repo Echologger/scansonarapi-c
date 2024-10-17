@@ -99,7 +99,7 @@ Using example (Windows):
     int main(void)
     {
         pSnrCtx sctx = ScansonarOpen("\\\\.\\COM27", 115200U, L"scandata.bin", linecallback); // Windows
-        //pSnrCtx sctx = ScansonarOpen("/dev/ttyUSB0", 115200U, L"scandata.bin", linecallback); // Linux
+        //pSnrCtx sctx = ScansonarOpen("/dev/ttyUSB0", 115200U, "scandata.bin", linecallback); // Linux
 
         // At this point Scanning Sonar start to work with default parameters if sctx is not NULL pointer
         // Status of sonar (Running/Error) can be obtainer by calling ScansonarIsDetected(sctx) function
@@ -118,10 +118,10 @@ Using example (Windows):
 
             ScansonarStart(sctx); // Apply new settings to the Scanning sonar
 
-            // Data from the sonar are temporary saved at the buffer sizeof 20400 samples X 3200 lines in memory
+            // Data from the sonar are temporary saved at the buffer sizeof 20400 samples X 3200 lines in the memory
             // Each line represent a received samples with sampling rate of 100kHz
             // As this "Image" contains 3200 lines, the angle resolution is 0.1125 deg.
-            // This data can be obtained by calling ScansonarGetSonarData(sctx)
+            // This data can be obtained by calling GetRawSonarData(sctx)
             // How make picture from this data is desctibed in the document "RS900 communication protocolfor application developer.doc"
 
             for(;;)
