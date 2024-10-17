@@ -1,17 +1,19 @@
-List of Scanning sonar Commands ()
-==================================
+List of Scanning sonar Commands (Firmware 1.0.4)
+================================================
 
 | CommandID | Description | Value | Items | Comment |
 |:---|---|:---:|:---:|---|
+| IdCentralFrequency | Set transmitting Frequency | 100000~1000000, 0 - Default | Hz | Transmitting frequency |
+| IdFrequencyBand | Set Frequency Band | 1~100000, 0 - Default | Hz | Transmitting frequency band |
+| IdToneChirp | Tone or Chirp | 0 - tone(CW), 1 - Chirp(FM), 2 - Chirp(AFM) | N/A | Tone or Chirp signal selection |
 | IdTxLength | Set transmit pulse length | 10~200 | µseconds | Pulse length in microsecond |
-| IdGain | Set gain for current frequency | ±60 | dB | Gain for current working frequency |
-| IdTVGMode |Set TVGMode |0~2|dB/m|Absorbtion transmission losses value for current working frequency |
-| IdDeadzone | Set deadzone for current frequency | 0~Range | mm | Set deadzone for current frequency |
-| IdThreshold | Set threshold for current frequency | 10~80 | % of FS | Percent of full scale |
-| IdSamplFreq | Set output sampling frequency | 6250~100000 | Hz | Set 0 to Auto. |
-| IdVersion | Firmware version | Any | N/A | Should be threated as test string |
-| IdSetHighFreq | Set high working frequency | N/A| N/A| Set high working frequency |
-| IdSetLowFreq | Set low working frequency | N/A | N/A | Set low working frequency |
-| IdGetHighFreq | Get high working frequency | N/A | N/A | Get high working frequency |
-| IdGetLowFreq | Get low working frequency | N/A | N/A | Get low working frequency |
-| IdGetWorkFreq | Get current working frequency | N/A | N/A | Get working frequency |
+| IdGain | Set receiver's gain | ±60 | dB | Gain |
+| IdCommandID | Set command ID | Any | N/A | See Command ID description |
+| IdSamples | Set number of samples | 240~13340 | N/A | Number of returning samples (with 100kHz sample rate) |
+| IdSamplFreq | Sampling frequency | 100000 | Hz | Now only 100kHz sampling frequency is supported |
+| IdTVGTime | TVG's DAC sampling time | 80 | us | Default value is 80us, do not alter |
+| IdSectorHeading | Sector's mode heading | 0~28800 | N/A | Heading value for sector mode |
+| IdSectorWidth | Sector's mode width | 0~28800 | N/A | Width value for sector mode, 0 - continious mode |
+| IdRotationParam | Rotation direction | 0 - CW, 1 - CCW | N/A | Rotation direction |
+| IdSteppingMode | Stepping mode | 0 - Stop, 1 - 0.1125°, 2 - 0.225°, 4 - 0.45°, 8 - 0.9°, 16 - 1.8° | N/A | Rotation angle |
+| IdSteppingAngle | Stepping angle | 0 | N/A | Must be 0 |
