@@ -143,18 +143,31 @@ Using with Python 3+
     import ctypes
     import itertools
 
+    def my_callback(data, size):
+        print("Callback called", data[0],data[1],data[2],data[3], size)
+        pass
+
+    write_callback_prototype = ctypes.CFUNCTYPE(None, ctypes.POINTER(ctypes.c_uint8), ctypes.c_int)
+    callback = write_callback_prototype(my_callback)
+
     libscan = ctypes.cdll.LoadLibrary(".\\scansonar_api.dll")
 
     libscan.ScansonarOpen.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_void_p]
     libscan.ScansonarOpen.restype = ctypes.c_void_p
 
+    libscan.ScansonarClose.argtypes = [ctypes.c_void_p]
+    libscan.ScansonarClose.restype = None
+
     libscan.GetRawSonarData.argtypes = [ctypes.c_void_p]
     libscan.GetRawSonarData.restype = ctypes.POINTER(ctypes.c_uint16)
 
-    scanhandle = libscan.ScansonarOpen(b"\\\\.\\COM6", 921600, "", 0)
+    scanhandle = libscan.ScansonarOpen(b"\\\\.\\COM6", 921600, "scandata.bin", callback)
 
     if None != scanhandle:
         rawdata = libscan.GetRawSonarData(scanhandle)
 
         while True:
             #do your job here
+
+        libscan.ScansonarClose(scanhandle)
+        
