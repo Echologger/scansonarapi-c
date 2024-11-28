@@ -136,3 +136,25 @@ Using example (Windows):
 
         return 0;
     }
+
+Using with Python 3+
+
+    import time
+    import ctypes
+    import itertools
+
+    libscan = ctypes.cdll.LoadLibrary(".\\scansonar_api.dll")
+
+    libscan.ScansonarOpen.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_void_p]
+    libscan.ScansonarOpen.restype = ctypes.c_void_p
+
+    libscan.GetRawSonarData.argtypes = [ctypes.c_void_p]
+    libscan.GetRawSonarData.restype = ctypes.POINTER(ctypes.c_uint16)
+
+    scanhandle = libscan.ScansonarOpen(b"\\\\.\\COM6", 921600, "", 0)
+
+    if None != scanhandle:
+        rawdata = libscan.GetRawSonarData(scanhandle)
+
+        while True:
+            #do your job here
