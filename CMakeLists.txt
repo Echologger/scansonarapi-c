@@ -40,12 +40,12 @@ string(TIMESTAMP BUILDTIME %Y%m%d%H%M)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-set (PROJECT echosounderapi)
+set (PROJECT scansonar_api)
 project(${PROJECT})
 
 ## Sources
 
-set(echosounderapi_src
+set(scansonar_api_src
     src/B64Encode.cpp
     src/Crc32.cpp
     src/ISonar.cpp
@@ -57,9 +57,9 @@ set(echosounderapi_src
 )
 
 if(WIN32)
-    list(APPEND echosounderapi_src modules/serial/src/impl/win.cc)
+    list(APPEND scansonar_api_src modules/serial/src/impl/win.cc)
 else() # UNIX/IOS
-    list(APPEND echosounderapi_src modules/serial/src/impl/unix.cc)
+    list(APPEND scansonar_api_src modules/serial/src/impl/unix.cc)
 endif()
 
 
@@ -68,11 +68,11 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if(BUILD_SHARED_LIBS)
 message(STATUS "Build Shared Library")
-add_library(${PROJECT_NAME} SHARED ${echosounderapi_src})
+add_library(${PROJECT_NAME} SHARED ${scansonar_api_src})
 add_compile_definitions(DLL_LIB)
 else()
 message(STATUS "Build Static Library")
-add_library(${PROJECT_NAME} ${echosounderapi_src})
+add_library(${PROJECT_NAME} ${scansonar_api_src})
 endif()
 
 #Examples
