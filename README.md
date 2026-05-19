@@ -23,7 +23,7 @@ Can be downloaded from [Ninja webpage](https://ninja-build.org/)
 Build command for Linux:
 
     git clone --recursive https://github.com/Echologger/scansonarapi-c.git
-    cd echosounderapi-c
+    cd scansonarapi-c
     mkdir build
     cd build
     cmake ..
@@ -33,7 +33,7 @@ Build command for Linux:
     // or build using Ninja
     
     git clone --recursive https://github.com/Echologger/scansonarapi-c.git
-    cd echosounderapi-c
+    cd scansonarapi-c
     mkdir build
     cd build
     cmake -GNinja ..
@@ -42,7 +42,7 @@ Build command for Linux:
 Build command for Windows:
 
     git clone --recursive https://github.com/Echologger/scansonarapi-c.git
-    cd echosounderapi-c
+    cd scansonarapi-c
     mkdir build
     cd build
     cmake ..
